@@ -5,7 +5,7 @@ web-server and starts the ISMARA analysis.
 
 All you need to do is to download **ismara_uploader.py** script and start using it.
 
-**Important!** This script requires Python3!
+**Important!** This script requires Python3 as well as the *requests* library.
 
 ## Purpose
 
