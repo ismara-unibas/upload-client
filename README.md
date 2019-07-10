@@ -22,7 +22,7 @@ Here is lit of features we plan for the uploader script:
 ## Usage
 
 ```shell
-python ismara_uploader.py [-h] [-a email_address][-e EMAIL] [-p PROJECT]
+python ismara_uploader.py [-h] [-e EMAIL] [-p PROJECT]
                           [-t {microarray,rnaseq,chipseq,cage}]
                           [-o {hg18,mm9,hg19,mm10}] [--mirna] --file-list
                           FILE_LIST
@@ -57,7 +57,7 @@ Let's assume that you have three fastq files with human rnaseq data.
 
 2. We run the script in background:
 ```shell
-python ismara_uploader.py -a user@example.com -p "my cool project" -t rnaseq -o hg19 \
+python ismara_uploader.py -e user@example.com -p "my cool project" -t rnaseq -o hg19 \
     --mirna --file-list file_list.txt 1>ismara_uploader.out 2>ismara_uploader.err &
 ```
 
