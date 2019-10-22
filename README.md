@@ -49,11 +49,11 @@ The following file formats are supported:
 
 Let's assume that you have three fastq files with human rnaseq data.
 1. We create a text file which contains paths to your files ("file_ist.txt")
-`
+```
 /path/Sample1.fastq.gz
 /path/Sample2.fastq.gz
 /path/Sample3.fastq.gz
-`
+```
 
 2. We run the script in background:
 ```shell
