@@ -1,6 +1,6 @@
 # Upload client for the ISMARA web-service (www.ismara.unibas.ch)
 
-This is a pyhton script which uploads your files to the ISMARA
+This is a python script which uploads your files to the ISMARA
 web-server and starts the ISMARA analysis.
 
 All you need to do is to download **ismara_uploader.py** script and start using it.
@@ -33,7 +33,7 @@ python ismara_uploader.py [-h] [-e EMAIL] [-p PROJECT]
 * -h, --help :  show this help message and exit
 * -e EMAIL |: email address
 * -p PROJECT : project name
-* -t : data type {microarray,rnaseq,chipseq,cage}, default: microarray
+* -t : data type {microarray,rnaseq,chipseq}, default: rnaseq
 * -o : organism ID {hg18,mm9,hg19,mm10,rn6,e_coli}, default: hg19
 * --mirna : Run with miRNA
 * --file-list : list of files, ascii text, one line per file path
