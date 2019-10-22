@@ -26,7 +26,7 @@ def main():
                         help='data type',
                         dest="data_type",
                         choices=['microarray', 'rnaseq', 'chipseq'],
-                        default='microarray')
+                        default='rnaseq')
     parser.add_argument('-o',
                         help='Organism id: hg18 or hg19 for human, mm9 or mm10 for mouse, rn6 for rat, e_coli for E.coli..',
                         dest='organism',
