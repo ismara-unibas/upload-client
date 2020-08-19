@@ -85,7 +85,7 @@ def main():
                 headers['Content-Range'] = 'bytes %s-%s/%s' % (index, offset, content_size)
                 index = offset
                 error = ''
-                for i in range(5):
+                for i in range(20):
                     try:
                         r =  upload_session.post(UPLOAD_URL, files={"files[]":(file_name, chunk)},
                                                  data={"sd": save_dir})
@@ -93,8 +93,8 @@ def main():
                         break
                     except:
                         error = sys.exc_info()[0]
-                        logging.warning("Error: %s!!!\nRetrying to re-upload data. Retry %d", str(sys.exc_info()), i+1)
-                        time.sleep(60)
+                        logging.warning("Connection problem: %s!!!\nRetrying to re-upload data. Retry %d", str(sys.exc_info()), i+1)
+                        time.sleep(i * 60)
                 if error != '':
                     logging.warning("Could not upload the data! Please report this id to ISMARA administrators: %s!", save_dir)
 
