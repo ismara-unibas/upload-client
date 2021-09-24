@@ -24,7 +24,7 @@ Here is lit of features we plan for the uploader script:
 ```shell
 python ismara_uploader.py [-h] [-e EMAIL] [-p PROJECT]
                           [-t {microarray,rnaseq,chipseq,cage}]
-                          [-o {hg18,mm9,hg19,mm10}] [--mirna] --file-list
+                          [-o {hg18,mm9,hg19,mm10,rn6,e_coli,sacSer2,arTal,dr11}] [--mirna] --file-list
                           FILE_LIST
 ```
 
@@ -34,7 +34,7 @@ python ismara_uploader.py [-h] [-e EMAIL] [-p PROJECT]
 * -e EMAIL |: email address
 * -p PROJECT : project name
 * -t : data type {microarray,rnaseq,chipseq}, default: rnaseq
-* -o : organism ID {hg18,mm9,hg19,mm10,rn6,e_coli}, default: hg19
+* -o : organism ID {hg18,mm9,hg19,mm10,rn6,e_coli,sacSer2,arTal,dr11}, default: hg19
 * --mirna : Run with miRNA
 * --file-list : list of files, ascii text, one line per file path
 
