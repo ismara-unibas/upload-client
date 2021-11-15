@@ -4,6 +4,7 @@ import argparse
 import json
 import logging
 import os
+import re
 import requests
 import time
 import sys
@@ -28,9 +29,9 @@ def main():
                         choices=['microarray', 'rnaseq', 'chipseq'],
                         default='rnaseq')
     parser.add_argument('-o',
-                        help='Organism id: hg18 or hg19 for human, mm9 or mm10 for mouse, rn6 for rat, e_coli for E.coli, sacSer2 for yeast, arTal for Arabidopsis thaliana, dr11 for zebrafish.',
+                        help='Organism id: hg18, hg19 or hg38 for human, mm9, mm10, mm39 for mouse, rn6 for rat, e_coli for E.coli, sacSer2 for yeast, arTal for Arabidopsis thaliana, dr11 for zebrafish.',
                         dest='organism',
-                        choices=['hg18', 'mm9', 'hg19', 'mm10', "rn6", "e_coli", "arTal", "sacSer2", "dr11"],
+                        choices=['hg18', 'mm9', 'hg19', 'mm10', "rn6", "e_coli", "arTal", "sacSer2", "dr11", "hg38", "mm39"],
                         default='hg19')
 
     parser.add_argument('--mirna',
@@ -58,7 +59,7 @@ def main():
                 "organism": args.organism,
                 "mirna":  str(args.use_mirna).lower(),
                 "submission": "uploader"}
-    if job_data["organism"] in ["hg19", 'mm10']:
+    if job_data["organism"] in ["hg19", 'mm10', "hg38", "mm39"]:
         job_data["organism"] += "_f5"
 
     # save job parameters in advance
@@ -72,7 +73,15 @@ def main():
     
     with open(args.file_list) as fin:
         files = [line.strip() for line in fin]
+    srr_list = []
+    url_list = []
     for f in files:
+        if re.match(r'^SRR\d+$', f) or re.match(r'^SRR\d+\s+\S+', f):
+            srr_list.append(f)
+            continue
+        if re.match(r'^(http://|https://|ftp://)', f):
+            url_list.append(f)
+            continue
         with open(f, 'rb') as fin:
             index=0
             headers={}
@@ -114,6 +123,8 @@ def main():
                                            "type": data_type,
                                            "method": "ismara_uploader",
                                            "organism": organism,
+                                           "url_list": "\n".join(url_list),
+                                           "srr_list": "\n".join(srr_list),
                                            "mirna": use_mirna})
     print("\n>>>>>>>>>>\nHere is link to your results:\n    https:///ismara.unibas.ch%s" % (r.text.strip()))
 

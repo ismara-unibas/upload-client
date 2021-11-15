@@ -24,7 +24,7 @@ Here is lit of features we plan for the uploader script:
 ```shell
 python ismara_uploader.py [-h] [-e EMAIL] [-p PROJECT]
                           [-t {microarray,rnaseq,chipseq,cage}]
-                          [-o {hg18,mm9,hg19,mm10,rn6,e_coli,sacSer2,arTal,dr11}] [--mirna] --file-list
+                          [-o {hg18,mm9,hg19,mm10,hg38,mm39,rn6,e_coli,sacSer2,arTal,dr11}] [--mirna] --file-list
                           FILE_LIST
 ```
 
@@ -38,7 +38,44 @@ python ismara_uploader.py [-h] [-e EMAIL] [-p PROJECT]
 * --mirna : Run with miRNA
 * --file-list : list of files, ascii text, one line per file path
 
-#### File format support
+### Format of file list
+This file contains path to files to upload. One file path per line. You can add also links to external files (http or ftp) or SRR ids (GEO database). In case of SRR id you can add comprehensive name for a sample which should be separated by a space fron the SRR id.
+#### Examples
+
+* File paths
+```
+/data/expr1/sample1_R1.fastq.gz
+/data/expr1/sample1_R2.fastq.gz
+/data/expr1/sample2_R1.fastq.gz
+/data/expr1/sample2_R2.fastq.gz
+
+```
+
+* Links
+```
+https://example.com/data/sample1_R1.fastq.gz
+https://example.com/data/sample1_R2.fastq.gz
+https://example.com/data/sample2_R1.fastq.gz
+https://example.com/data/sample2_R2.fastq.gz
+```
+
+* SRR ids
+```
+SRR12345
+SRR12346
+SRR12347
+SRR12348
+```
+
+* SRR ids with names
+```
+SRR12345 3hours_rep1
+SRR12346 3hours_rep2
+SRR12347 3hours_rep3
+SRR12348 6hours_rep1
+```
+
+#### ISMARA file format support
 The following file formats are supported:
 * **microarray** : .cel files
 * **rnaseq/chipseq** : .fastq[.gz], .bed[.gz], .bam
