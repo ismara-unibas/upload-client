@@ -29,10 +29,10 @@ def main():
                         choices=['microarray', 'rnaseq', 'chipseq'],
                         default='rnaseq')
     parser.add_argument('-o',
-                        help='Organism id: hg18, hg19 or hg38 for human, mm9, mm10, mm39 for mouse, rn6 for rat, e_coli for E.coli, sacSer2 for yeast, arTal for Arabidopsis thaliana, dr11 for zebrafish.',
+                        help='Organism id: human, mouse, rat, zebrafish, yeast, ecoli, arabidopsis or genome versions: hg18, hg19 or hg38 for human, mm9, mm10, mm39 for mouse, rn6 for rat, e_coli for E.coli, sacSer2 for yeast, arTal for Arabidopsis thaliana, dr11 for zebrafish.',
                         dest='organism',
-                        choices=['hg18', 'mm9', 'hg19', 'mm10', "rn6", "e_coli", "arTal", "sacSer2", "dr11", "hg38", "mm39"],
-                        default='hg19')
+                        choices=["human", "mouse", "rat", "zebrafish", "yeast", "ecoli", "arabidopsis", 'hg18', 'mm9', 'hg19', 'mm10', "rn6", "e_coli", "arTal", "sacSer2", "dr11", "hg38", "mm39"],
+                        default='hg38')
 
     parser.add_argument('--mirna',
                         help='Run with miRNA',
@@ -41,23 +41,51 @@ def main():
                         default=False)
     
     parser.add_argument('--file-list',
-                        help="list of files, ascii text, one line per file path",
+                        help="list of files, ascii text, one line per file path. Supported file formats: .CEL, .FASTQ, .BAM, .BED, .SAM.",
                         dest="file_list",
                         required=True)
     
     args = parser.parse_args()
 
+    # check if files exists
+    file_sizes = {}
+    with open(args.file_list) as fin:
+        files = [line.strip() for line in fin]
+    for myfile in files:
+        if re.match(r'^SRR\d+$', myfile) or re.match(r'^SRR\d+\s+\S+', myfile):
+            continue
+        if re.match(r'^(http://|https://|ftp://)', myfile):
+            continue
+        if not os.path.exists(myfile):
+            raise BaseException("File %s does not exist." % myfile)
+        file_sizes[myfile] = "%.4f GB"  % (os.path.getsize(myfile)/1024./1024./1024.)
+    logging.warning("File list check complete.")
+        
+    # init session
     upload_session = requests.Session()
     upload_session.verify = True
     upload_session.timeout = (10, 600)
     save_dir = get_sd(upload_session)
 
     # save user parameters
+    organism_map = {"human": "hg38",
+                    "mouse": "mm39",
+                    "rat": "rn6",
+                    "zebrafish": "dr11",
+                    "yeast": "sacSer2",
+                    "ecoli": "e_coli",
+                    "arabidopsis": "arTal"}
+    if args.organism in organism_map:
+        organism = organism_map[args.organism]
+    else:
+        organism = args.organism
+
     job_data = {"email": args.email,
                 "project": args.project,
                 "type": args.data_type,
-                "organism": args.organism,
+                "organism": organism,
                 "mirna":  str(args.use_mirna).lower(),
+                "files": file_sizes,
                 "submission": "uploader"}
     if job_data["organism"] in ["hg19", 'mm10', "hg38", "mm39"]:
         job_data["organism"] += "_f5"
@@ -69,12 +97,10 @@ def main():
                                        "data":json.dumps(job_data)})
     except:
         logging.warning("Error: Could not save user parameters!\n%s!", str(sys.exc_info()))
-
     
-    with open(args.file_list) as fin:
-        files = [line.strip() for line in fin]
     srr_list = []
     url_list = []
+    upload_counter = 1
     for f in files:
         if re.match(r'^SRR\d+$', f) or re.match(r'^SRR\d+\s+\S+', f):
             srr_list.append(f)
@@ -82,6 +108,7 @@ def main():
         if re.match(r'^(http://|https://|ftp://)', f):
             url_list.append(f)
             continue
+        logging.warning("Uploading %s (%d/%d)." % (f, upload_counter, len(files)))
         with open(f, 'rb') as fin:
             index=0
             headers={}
@@ -106,27 +133,25 @@ def main():
                         time.sleep(i * 60)
                 if error != '':
                     logging.warning("Could not upload the data! Please report this id to ISMARA administrators: %s!", save_dir)
-
+        logging.warning("Finished uploading %s (%d/%d)." % (f, upload_counter, len(files)))
+        upload_counter += 1
 
 
     # init job run after upload
     email = args.email
     project = args.project
     data_type = args.data_type
-    organism = args.organism
-    if organism in ["hg19", 'mm10']:
-        organism += "_f5"
     use_mirna = str(args.use_mirna).lower()
     r = upload_session.post(RUN_URL, data={"sd": save_dir,
                                            "email": email,
                                            "project": project,
                                            "type": data_type,
                                            "method": "ismara_uploader",
-                                           "organism": organism,
+                                           "organism": job_data["organism"],
                                            "url_list": "\n".join(url_list),
                                            "srr_list": "\n".join(srr_list),
                                            "mirna": use_mirna})
-    print("\n>>>>>>>>>>\nHere is link to your results:\n    https:///ismara.unibas.ch%s" % (r.text.strip()))
+    print("\n>>>>>>>>>>\nHere is link to your submission:\n    https:///ismara.unibas.ch%s" % (r.text.strip()))
 
 
 def get_sd(mysession):

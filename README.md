@@ -5,17 +5,13 @@ web-server and starts the ISMARA analysis.
 
 All you need to do is to download **ismara_uploader.py** script and start using it.
 
-**Important!** This script requires Python3 as well as the *requests* library.
+**Important!** This script requires Python3 as well as the *requests* library. If these packages are not available then you can use <a href="https://conda.io">conda</a> to install it.
 
 ## Purpose
 
 This script is aimed to users who has their data files stored on remote machines (usually linux) which can use this script to upload their data without use of an internet browser. So you do not need to copy files to your local machine for uploading to the ISMARA server.
 
-This is just alpha version to see if there are people interested in such application, We hope to get user feedback to properly shape the further development.
-
-Here is lit of features we plan for the uploader script:
-* resumable upload
-* metadata upload along with data files (sample names, multiple files per sample, predefined groups for averaging)
+We hope to get user feedback to properly shape the further development.
 
 **All feedback is welcome!**
 
@@ -23,8 +19,8 @@ Here is lit of features we plan for the uploader script:
 
 ```shell
 python ismara_uploader.py [-h] [-e EMAIL] [-p PROJECT]
-                          [-t {microarray,rnaseq,chipseq,cage}]
-                          [-o {hg18,mm9,hg19,mm10,hg38,mm39,rn6,e_coli,sacSer2,arTal,dr11}] [--mirna] --file-list
+                          [-t {microarray,rnaseq,chipseq}]
+                          [-o {human,mouse,rat,zebrafish,yeast,ecoli,arabidopsis,hg18,mm9,hg19,mm10,hg38,mm39,rn6,e_coli,sacSer2,arTal,dr11}] [--mirna] --file-list
                           FILE_LIST
 ```
 
@@ -34,12 +30,15 @@ python ismara_uploader.py [-h] [-e EMAIL] [-p PROJECT]
 * -e EMAIL |: email address
 * -p PROJECT : project name
 * -t : data type {microarray,rnaseq,chipseq}, default: rnaseq
-* -o : organism ID {hg18,mm9,hg19,mm10,rn6,e_coli,sacSer2,arTal,dr11}, default: hg19
+* -o : organism id or genome version  {human,mouse,rat,zebrafish,yeast,ecoli,arabidopsis,hg18,mm9,hg19,mm10,rn6,e_coli,sacSer2,arTal,dr11}, default: hg38
 * --mirna : Run with miRNA
-* --file-list : list of files, ascii text, one line per file path
+* --file-list : list of files/links/SRR, ascii text, one line per file path. Supported file formats: .CEL, .FASTQ, .BAM, .BED, .SAM.
 
 ### Format of file list
-This file contains path to files to upload. One file path per line. You can add also links to external files (http or ftp) or SRR ids (GEO database). In case of SRR id you can add comprehensive name for a sample which should be separated by a space fron the SRR id.
+This file contains path to files to upload. One file path per line. You can add also links to external files (http or ftp) or SRR ids (SRA database). In case of SRR id you can add comprehensive name for a sample which should be separated by a space from the SRR id.
+
+Important! For paired-end reads please use suffixes **_R1/_R2** to indicate fastq files with first end reads and second end reads correspondingly.
+
 #### Examples
 
 * File paths
@@ -79,7 +78,7 @@ SRR12348 6hours_rep1
 The following file formats are supported:
 * **microarray** : .cel files
 * **rnaseq/chipseq** : .fastq[.gz], .bed[.gz], .bam
-* *all* : .zip, .tar.gz archives containing files of above formats
+* *all* : .zip, .tar.gz archives containing files of the above formats
  
 
 ### Example
@@ -94,10 +93,14 @@ Let's assume that you have three fastq files with human rnaseq data.
 
 2. We run the script in background:
 ```shell
-python ismara_uploader.py -e user@example.com -p "my cool project" -t rnaseq -o hg19 \
-    --mirna --file-list file_list.txt 1>ismara_uploader.out 2>ismara_uploader.err &
+nohup python ismara_uploader.py -e user@example.com -p "my cool project" -t rnaseq -o hg19 \
+    --mirna --file-list file_list.txt &>ismara_uploader.out &
 ```
 
-3. In the file ismara_uploader.out the last lines contain a link to status page of your submission. If you submitted your email address then you will get a notification once your job is finished.
+3. When upload is finished, the last lines of the file `ismara_uploader.out` a link to status page of your submission. If you submitted your email address then you will get a notification once your job is finished.
 
-Please not that right now there is a lot of messages about insecure connection in error log file. This is because of problem with self-signed server certificate which should resolved very soon.
+In linux/MacOS systems you can check last messages in `ismara_uploader.out` with command:
+```shell
+tail ismara_uploader.out
+```
+
